@@ -35,14 +35,16 @@ def safe_run(_func=None,*,dcs={}):
     dcs['tb']: String to print in try block
     dcs['cb']: String to print in except block
     dcs['dv']: default value to return: default is None
+    dcs['var']: var to be printed with cb
     """
 #     tb = tb;dv = dv; cb=cb;fb=fb
     def saferun(func):
         @functools.wraps(func)
         def try_run_function(*args,**kwargs):
-#             pdb.set_trace()
             tb = f"Running the function {func.__name__}" if dcs.get('tb',None) is None else dcs.get('tb')
             cb = f"Something wrong happened while running {func.__name__} --" if dcs.get('cb',None) is None else dcs.get('cb')
+            if dcs.get('var',None):
+                cb = cb + ' ' + str(kwargs[dcs['var']]) + ' '
             try:
                 print(tb)
                 value = func(*args,**kwargs)
