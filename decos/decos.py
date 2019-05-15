@@ -44,7 +44,6 @@ def safe_run(_func=None,*,dcs={}):
             tb = f"Running the function {func.__name__}" if dcs.get('tb',None) is None else dcs.get('tb')
             cb = f"Something wrong happened while running {func.__name__} --" if dcs.get('cb',None) is None else dcs.get('cb')
             if dcs.get('var',None):
-                pdb.set_trace()
                 cb = cb + ' ' + str(kwargs[dcs['var']]) + ' '
             try:
                 print(tb)
