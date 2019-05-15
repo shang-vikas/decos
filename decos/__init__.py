@@ -1,5 +1,5 @@
 name = "decos"
 
-# from decos import safe_run, debug, timer
+from decos import *
 
 __all__ = ['safe_run','timer','debug']
