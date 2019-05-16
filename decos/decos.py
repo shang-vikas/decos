@@ -1,5 +1,6 @@
 import functools
 import time,os,sys,pdb
+import inspect
 
 __all__ = ["timer","debug","safe_run"]
 
@@ -37,27 +38,50 @@ def safe_run(_func=None,*,dcs={}):
     dcs['dv']: default value to return: default is None
     dcs['var']: var to be printed with cb
     """
-#     tb = tb;dv = dv; cb=cb;fb=fb
     def saferun(func):
+
+        def get_def_kwargs(*ar,**kw):
+            vals = inspect.getargspec(func)
+            def_kwargs = {}
+            if vals[3]:
+                def_kwargs = dict(zip(vals[0][-(vals[3].__len__()):],vals[3]))
+            
+            mod_arg = dict(zip(vals[0][:len(ar)],ar))
+            for k,v in mod_arg.items():
+                def_kwargs[k] = v
+            
+            return def_kwargs
+
+        def handle_vars(cb,def_kwargs):
+            if not dcs.get('var',None):
+                return cb
+            for var in dcs.get('var'):
+                if def_kwargs.get(var,None):
+                    cb = cb + f' {var} = {str(def_kwargs[var])} '
+            return cb
+        
+        def handler(*ar,**kw):
+            tb = f"Running the function {func.__name__} " if dcs.get('tb',None) is None else dcs.get('tb')
+            cb = f"Something wrong happened while running {func.__name__} -- " if dcs.get('cb',None) is None else dcs.get('cb')
+            all_ar = get_def_kwargs(*ar,**kw)
+            cb = handle_vars(cb,all_ar)
+            return tb,cb
+
         @functools.wraps(func)
         def try_run_function(*args,**kwargs):
-            tb = f"Running the function {func.__name__}" if dcs.get('tb',None) is None else dcs.get('tb')
-            cb = f"Something wrong happened while running {func.__name__} --" if dcs.get('cb',None) is None else dcs.get('cb')
-            if dcs.get('var',None):
-                cb = cb + ' ' + str(kwargs[dcs['var']]) + ' '
+            tb,cb = handler(*args,**kwargs)
             try:
                 print(tb)
                 value = func(*args,**kwargs)
                 return value
             except Exception as e:
-                print(cb+f'{e}'+f'More info over here... \n{sys.exc_info()}')
+                print(cb+f'{e}'+f' More info over here... \n{sys.exc_info()}')
                 return dcs.get('dv',None)
-#             finally:
-#                 if fb:
-#                     pass
-#                 else:
-#                     pass ## haven't decided the functionality
+        
         return try_run_function
+    
+    if dcs.get('var',None):
+        assert isinstance(dcs['var'],list),('value of var must be a list')
     if _func is None:
         return saferun
     else:
