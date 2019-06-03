@@ -5,7 +5,7 @@ with open("README.md" ,'r') as f:
 
 setuptools.setup(
         name='decos',
-        version='0.0.12post2',
+        version='0.0.12post3',
         author='Vikas Sangwan',
         author_email='16vikas96@gmail.com',
         description='some decorators',
