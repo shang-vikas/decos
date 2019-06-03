@@ -73,7 +73,7 @@ def safe_run(_func=None,*,dcs={}):
 
         def handler(*ar,**kw):
             tb = f"Running the function {func.__name__} " if dcs.get('tb',None) is None else dcs.get('tb')
-            cb = f"Something went wrong while running {func.__name__} -- \nreturning the default values. More info on error is below - \n " if dcs.get('cb',None) is None else dcs.get('cb')
+            cb = f"Something went wrong while running {func.__name__} -- \n Given args to function were -> " if dcs.get('cb',None) is None else dcs.get('cb')
             all_ar = get_def_kwargs(*ar,**kw)
             cb = handle_vars(cb,all_ar)
             drv = handle_drv(all_ar)
@@ -87,15 +87,14 @@ def safe_run(_func=None,*,dcs={}):
                 value = func(*args,**kwargs)
                 return value
             except Exception as e:
-                _f  = traceback.print_exc()
-                print(cb+f' {e} '+f' More info over here... \n {_f}')
-                del _f
+                print(cb+f' Returning default values -- {drv} . Error traceback  here -> {e} ')
+                print(traceback.print_exc())
                 return drv
         
         return try_run_function
     
     if dcs.get('var',None):
-        assert isinstance(dcs['var'],list),('value of var must be a list')
+        assert isinstance(dcs['var'],list),('values of var must be a list')
     if _func is None:
         return saferun
     else:
