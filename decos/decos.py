@@ -73,7 +73,7 @@ def safe_run(_func=None,*,dcs={}):
 
         def handler(*ar,**kw):
             tb = f"Running the function {func.__name__} " if dcs.get('tb',None) is None else dcs.get('tb')
-            cb = f"Above mentioned error caught while running {func.__name__} -- \nreturning the default values " if dcs.get('cb',None) is None else dcs.get('cb')
+            cb = f"Something went wrong while running {func.__name__} -- \nreturning the default values. More info on error is below - \n " if dcs.get('cb',None) is None else dcs.get('cb')
             all_ar = get_def_kwargs(*ar,**kw)
             cb = handle_vars(cb,all_ar)
             drv = handle_drv(all_ar)
