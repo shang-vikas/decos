@@ -1,8 +1,15 @@
 import functools
 import time,os,sys,pdb
 import inspect,traceback
-
+import logging
 __all__ = ["timer","debug","safe_run"]
+decos_logger = logging.getLogger("decos_module")
+logging.basicConfig(
+    format="%(levelname)s :: %(asctime)s:%(message)s",
+    stream=sys.stdout,
+    level=logging.INFO,
+)
+decos_logger.setLevel(logging.INFO)
 
 def timer(func):
     """Print the runtime of the decorated function"""
@@ -12,7 +19,7 @@ def timer(func):
         value = func(*args, **kwargs)
         end_time = time.perf_counter()      # 2
         run_time = end_time - start_time    # 3
-        print(f"Finished {func.__name__!r} in {run_time:.4f} secs")
+        logging.info(f"Finished {func.__name__!r} in {run_time:.4f} secs")
         return value
     return wrapper_timer
 
@@ -24,9 +31,9 @@ def debug(func):
         args_repr = [repr(a) for a in args]                      # 1
         kwargs_repr = [f"{k}={v!r}" for k, v in kwargs.items()]  # 2
         signature = ", ".join(args_repr + kwargs_repr)           # 3
-        print(f"Calling {func.__name__}({signature})")
+        logging.debug(f"Calling {func.__name__}({signature})")
         value = func(*args, **kwargs)
-        print(f"{func.__name__!r} returned {value!r} of type - {type(value)}")           # 4
+        logging.debug(f"{func.__name__!r} returned {value!r} of type - {type(value)}")           # 4
         return value
     return wrapper_debug
 
@@ -87,8 +94,8 @@ def safe_run(_func=None,*,dcs={}):
                 value = func(*args,**kwargs)
                 return value
             except Exception as e:
-                print(cb+f' Returning default values -- {drv} . Error traceback  here -> {e} ')
-                print(traceback.print_exc())
+                logging.info(cb+f' Returning default values -- {drv} . Error traceback  here -> {e} ')
+                logging.debug(traceback.print_exc())
                 return drv
         
         return try_run_function
